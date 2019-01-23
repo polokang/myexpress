@@ -1,36 +1,57 @@
-var http = require("http");
+const axios = require("axios");
 var cheerio = require("cheerio");
-//准备抓取的网站链接
-var dataUrl =
-  "http://www.fastgo.com.au/index/index/logquery?order_sn=FG0369233AU&type=1";
-http.get(dataUrl, function(res) {
-  var str = "";
-  //绑定方法，获取网页数据
-  res.on("data", function(chunk) {
-    str += chunk;
-  });
-  //数据获取完毕
-  res.on("end", function() {
-    //调用下方的函数，得到返回值，即是我们想要的img的src
-    var data = getData(str);
-    // console.log(data);
-  });
-});
 
-//根据得到的数据，处理得到自己想要的
-function getData(str) {
-  //沿用JQuery风格，定义$
-  var $ = cheerio.load(str);
-  //获取的数据数组
-  var arr = $("td");
+class Package {
+  constructor() {}
+  getData(url, params, companyName, reqType) {
+    return getPackageData(url, params, reqType).then(function(response) {
+      var data = handleResponseData(response.data, companyName);
+      const pack = {
+        data: data
+      };
+
+      return pack;
+    });
+  }
+}
+
+module.exports = new Package();
+
+function getPackageData(url, params, reqType) {
+  if (reqType === "post") {
+    return axios.post(url, {
+      params: params
+    });
+  }
+
+  return axios.get(url, {
+    params: params
+  });
+}
+
+function handleResponseData(responseData, companyName) {
+  // console.log(responseData);
+  var $ = cheerio.load(responseData);
+  let arr = $("td");
   var dataTemp = [];
-  //遍历得到数据的src，并放入以上定义的数组中
-  arr.each(function(k, v) {
-    var src = v.firstChild.firstChild.data;
-    dataTemp.push(src);
+  if (companyName === "FG") {
+    arr.each(function(k, v) {
+      var src = v.firstChild.firstChild.data;
+      dataTemp.push(src);
+    });
+    return dataTemp;
+  }
 
-    console.log(src);
-  });
-  //返回出去
-  return dataTemp;
+  if (companyName === "ARK") {
+    arr = $(".m-table1 tbody tr");
+    arr.each(function(k, v) {
+      var time = v.next.firstChild.data;
+      var state = v.next.tagName;
+      console.log(state);
+      dataTemp.push(time);
+    });
+    return dataTemp;
+  }
+
+  return responseData;
 }
