@@ -3,15 +3,26 @@ var cheerio = require("cheerio");
 var FormData = require("form-data");
 var qs = require("qs");
 var iconv = require("iconv-lite")
+var superagent = require('superagent')
+require('superagent-charset')(superagent)
+
 
 class Package {
   constructor() { }
   getData(url, params, companyName, reqType) {
     return getPackageData(url, params, reqType).then(function (response) {
-      // var data = handleResponseData(response.data, companyName);
+      // var data = handleResponseData(response.data, companyName)
 
-      var tempVar = response.data.json();
-      console.log(tempVar);
+      let $ = cheerio.load(response.data);
+      let dataTemp = [];
+      let arr = $("title");
+      arr.each(function (k, v) {
+        let td_node = v.firstChild;
+        console.log(iconv.decode(td_node.data, 'gb2312'))
+
+      });
+
+
       // console.log(response.headers)
       var data = handleResponseData(response, companyName);
       const pack = {
@@ -38,7 +49,15 @@ function getPackageData(url, params, reqType) {
   if (reqType === "post") {
     const bodyFormData = { numid: 'ET194982' }
     const config = { headers: { 'Content-type': 'application/x-www-form-urlencoded' } };
-    return axios.post("http://www.etong.com.au/chaxun.php", qs.stringify(bodyFormData), config);
+    // return axios.post("http://www.etong.com.au/chaxun.php", qs.stringify(bodyFormData), config);
+    // return superagent.post("http://www.etong.com.au/chaxun.php", qs.stringify(bodyFormData), config);
+    superagent.post("http://www.etong.com.au/chaxun.php", qs.stringify(bodyFormData), config)
+      .charset('gb2312')
+      .end((err, res) => {
+        console.log(res)
+        // done(err)
+      })
+
   }
 
   return axios.get(url, {
