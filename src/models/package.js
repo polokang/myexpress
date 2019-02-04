@@ -51,7 +51,7 @@ function getPackageData(url, params, reqType) {
     const config = { headers: { 'Content-type': 'application/x-www-form-urlencoded' } };
     // return axios.post("http://www.etong.com.au/chaxun.php", qs.stringify(bodyFormData), config);
     // return superagent.post("http://www.etong.com.au/chaxun.php", qs.stringify(bodyFormData), config);
-    superagent.post("http://www.etong.com.au/chaxun.php", qs.stringify(bodyFormData), config)
+    return superagent.post("http://www.etong.com.au/chaxun.php")
       .charset('gb2312')
       .end((err, res) => {
         console.log(res)
