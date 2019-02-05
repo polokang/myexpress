@@ -13,16 +13,6 @@ class Package {
     return getPackageData(url, params, reqType).then(function (response) {
       // var data = handleResponseData(response.data, companyName)
 
-      let $ = cheerio.load(response.data);
-      let dataTemp = [];
-      let arr = $("title");
-      arr.each(function (k, v) {
-        let td_node = v.firstChild;
-        console.log(iconv.decode(td_node.data, 'gb2312'))
-
-      });
-
-
       // console.log(response.headers)
       var data = handleResponseData(response, companyName);
       const pack = {
@@ -37,14 +27,6 @@ class Package {
 module.exports = new Package();
 
 function getPackageData(url, params, reqType) {
-  // if (reqType === "post") {
-  //   const bodyFormData = new FormData();
-  //   bodyFormData.append("numid", "ET194982");
-  //   return axios.post(url, {
-  //     data: bodyFormData,
-  //     headers: { "Content-Type": "multipart/form-data" }
-  //   });
-  // }
 
   if (reqType === "post") {
     const bodyFormData = { numid: 'ET194982' }
@@ -52,10 +34,11 @@ function getPackageData(url, params, reqType) {
     // return axios.post("http://www.etong.com.au/chaxun.php", qs.stringify(bodyFormData), config);
     // return superagent.post("http://www.etong.com.au/chaxun.php", qs.stringify(bodyFormData), config);
     return superagent.post("http://www.etong.com.au/chaxun.php")
-      .charset('gb2312')
-      .end((err, res) => {
-        console.log(res)
-        // done(err)
+      .charset('gbk')
+      .send({ bodyFormData })
+      .set(config)
+      .then((err, res) => {
+        console.log(JSON.stringify(res))
       })
 
   }
@@ -66,7 +49,7 @@ function getPackageData(url, params, reqType) {
 }
 
 function handleResponseData(responseData, companyName) {
-  let v = iconv.decode(responseData.data, 'gb2312');
+  console.log(responseData)
   if (companyName === "FG") {
     return exp_fg(responseData);
   }
@@ -83,7 +66,7 @@ function handleResponseData(responseData, companyName) {
 }
 
 function exp_et(responseData) {
-  var strJson = iconv.decode(responseData, 'gb2312'); // 汉字不乱码
+  var strJson = iconv.decode(responseData, 'gbk'); // 汉字不乱码
 
   let $ = cheerio.load(strJson);
   let dataTemp = [];
@@ -92,7 +75,7 @@ function exp_et(responseData) {
   arr = $(".i-left-tit");
   arr.each(function (k, v) {
     let time_node = v.data;
-    var sson = iconv.decode(time_node, 'gb2312'); // 汉字不乱码
+    var sson = iconv.decode(time_node, 'gbk'); // 汉字不乱码
     console.log(sson);
   });
 
