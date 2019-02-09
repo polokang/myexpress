@@ -11,14 +11,10 @@ class Package {
   constructor() { }
   getData(url, params, companyName, reqType) {
     return getPackageData(url, params, reqType).then(function (response) {
-      // var data = handleResponseData(response.data, companyName)
-
-      // console.log(response.headers)
       var data = handleResponseData(response, companyName);
       const pack = {
         data: data
       };
-
       return pack;
     });
   }
@@ -27,20 +23,11 @@ class Package {
 module.exports = new Package();
 
 function getPackageData(url, params, reqType) {
-
   if (reqType === "post") {
-    const bodyFormData = { numid: 'ET194982' }
-    const config = { headers: { 'Content-type': 'application/x-www-form-urlencoded' } };
-    // return axios.post("http://www.etong.com.au/chaxun.php", qs.stringify(bodyFormData), config);
-    // return superagent.post("http://www.etong.com.au/chaxun.php", qs.stringify(bodyFormData), config);
-    return superagent.post("http://www.etong.com.au/chaxun.php")
+    return superagent.post(url)
       .charset('gbk')
-      .send({ bodyFormData })
-      .set(config)
-      .then((err, res) => {
-        console.log(JSON.stringify(res))
-      })
-
+      .send(params)
+      .set('Content-type', 'application/x-www-form-urlencoded');
   }
 
   return axios.get(url, {
@@ -49,7 +36,6 @@ function getPackageData(url, params, reqType) {
 }
 
 function handleResponseData(responseData, companyName) {
-  console.log(responseData)
   if (companyName === "FG") {
     return exp_fg(responseData);
   }
@@ -66,23 +52,21 @@ function handleResponseData(responseData, companyName) {
 }
 
 function exp_et(responseData) {
-  var strJson = iconv.decode(responseData, 'gbk'); // 汉字不乱码
-
-  let $ = cheerio.load(strJson);
+  let $ = cheerio.load(responseData.text);
   let dataTemp = [];
-
-
-  arr = $(".i-left-tit");
+  arr = $(".i-middle1 ul table tr");
   arr.each(function (k, v) {
-    let time_node = v.data;
-    var sson = iconv.decode(time_node, 'gbk'); // 汉字不乱码
-    console.log(sson);
+    if (v.childNodes.length > 3) {
+      if (v.childNodes[1].name === 'td') {
+        let time = v.childNodes[1].firstChild.data;
+        let state = v.childNodes[5].firstChild.data;
+        let info = { time: time, state: state };
+        dataTemp.push(info);
+
+      }
+    }
   });
 
-
-
-  let info = { time: "", state: responseData };
-  dataTemp.push(info);
   return dataTemp;
 }
 
