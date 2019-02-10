@@ -27,6 +27,8 @@ module.exports = (req, res, next) => {
       numid: num
     };
     return next();
+  } else if (RegExp("^[0-9]*$")) { //kingfreight 12位数字
+
   }
 
   return responseFormatter(
