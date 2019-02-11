@@ -29,6 +29,8 @@ module.exports = (req, res, next) => {
     return next();
   } else if (RegExp("^[0-9]*$")) { //kingfreight 12位数字
 
+  } else if (num.startsWith("S")) {  //STAREXPRESS
+
   }
 
   return responseFormatter(
