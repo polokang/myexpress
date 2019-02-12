@@ -71,9 +71,9 @@ function exp_et(responseData) {
 }
 
 function exp_ark(responseData) {
-  let $ = cheerio.load(responseData);
+  let $ = cheerio.load(responseData.data);
   let dataTemp = [];
-  arr = $(".m-table1 > tbody > tr");
+  arr = $(".m-table1 tr");
   arr.each(function (k, v) {
     let td_node = v.firstChild.next;
     if (td_node.tagName === "td") {
