@@ -27,7 +27,10 @@ function getPackageData(url, params, reqType) {
     return superagent.post(url)
       .charset('gbk')
       .send(params)
+      .set('buffer[mine]', 'true')
       .set('Content-type', 'application/x-www-form-urlencoded');
+
+
   }
 
   return axios.get(url, {
@@ -67,7 +70,7 @@ function exp_et(responseData) {
     }
   });
 
-  return dataTemp;
+  return dataTemp.reverse();
 }
 
 function exp_ark(responseData) {
@@ -90,7 +93,7 @@ function exp_ark(responseData) {
 }
 
 function exp_fg(responseData) {
-  let $ = cheerio.load(responseData);
+  let $ = cheerio.load(responseData.data);
   let arr = $("td");
   let dataTemp = [];
   let serid = 0;
@@ -107,5 +110,5 @@ function exp_fg(responseData) {
       serid++;
     }
   });
-  return dataTemp;
+  return dataTemp.reverse();
 }
